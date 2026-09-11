@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Minesweeper</string>
+    <string name="course_heading">CS310 · AJ Chaikovsky</string>
+    <string name="initial_mine_count">6</string>
+    <string name="initial_mine_description">6 mines remaining</string>
+    <string name="initial_time">0 s</string>
+    <string name="initial_time_description">0 seconds elapsed</string>
+    <string name="dig_mode">Digging</string>
+    <string name="dig_mode_description">Current mode: digging</string>
+    <string name="hidden_cell_description">Row %1$d, column %2$d, hidden</string>
+</resources>

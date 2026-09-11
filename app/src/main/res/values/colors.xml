@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="page_background">#F5F7F0</color>
+    <color name="ink">#24462B</color>
+    <color name="secondary_ink">#52604E</color>
+    <color name="cell_light">#AAD751</color>
+    <color name="cell_dark">#A2D149</color>
+    <color name="mode_background">#E4EBCD</color>
+    <color name="flag_red">#B43D2D</color>
+</resources>
