@@ -102,5 +102,17 @@
                 android:textStyle="bold"
                 android:importantForAccessibility="no" />
         </LinearLayout>
+        <TextView
+            android:id="@+id/game_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="@string/game_lost"
+            android:textColor="@color/flag_red"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:accessibilityLiveRegion="polite"
+            android:visibility="gone" />
     </LinearLayout>
 </ScrollView>

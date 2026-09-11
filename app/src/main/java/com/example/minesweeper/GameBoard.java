@@ -3,13 +3,16 @@ package com.example.minesweeper;
 import java.util.Objects;
 import java.util.Random;
 
-/** Creates a board and computes its clues. Digging and flagging come later. */
+/** Board data and digging rules, independent of Android views. */
 public final class GameBoard {
     public static final int BOARD_SIZE = 10;
     public static final int CELL_COUNT = BOARD_SIZE * BOARD_SIZE;
     public static final int MINE_COUNT = 6;
 
     private final Cell[][] cells = new Cell[BOARD_SIZE][BOARD_SIZE];
+    private boolean lost;
+    private int revealedSafeCount;
+    private int detonatedMinePosition = -1;
 
     public GameBoard() {
         this(new Random());
@@ -64,6 +67,40 @@ public final class GameBoard {
             throw new IndexOutOfBoundsException("Cell outside board: " + row + ", " + column);
         }
         return cells[row][column];
+    }
+
+    /** Returns true only when this dig changes the game. */
+    public boolean dig(int row, int column) {
+        Cell cell = getCell(row, column);
+        if (lost || cell.isRevealed() || cell.isFlagged()) {
+            return false;
+        }
+        if (cell.isMine()) {
+            lost = true;
+            detonatedMinePosition = row * BOARD_SIZE + column;
+            // Showing the board at game end must not count as successful digs.
+            for (Cell[] boardRow : cells) {
+                for (Cell boardCell : boardRow) {
+                    boardCell.reveal();
+                }
+            }
+        } else {
+            cell.reveal();
+            revealedSafeCount++;
+        }
+        return true;
+    }
+
+    public boolean isLost() {
+        return lost;
+    }
+
+    public int getRevealedSafeCount() {
+        return revealedSafeCount;
+    }
+
+    public int getDetonatedMinePosition() {
+        return detonatedMinePosition;
     }
 
     private static int[] randomMinePositions(Random random) {

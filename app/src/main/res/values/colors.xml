@@ -7,4 +7,9 @@
     <color name="cell_dark">#A2D149</color>
     <color name="mode_background">#E4EBCD</color>
     <color name="flag_red">#B43D2D</color>
+    <color name="revealed_light">#EDD5B5</color>
+    <color name="revealed_dark">#E3C59E</color>
+    <color name="revealed_mine">#EFB698</color>
+    <color name="detonated_mine">#EE7662</color>
+    <color name="mine_ink">#412017</color>
 </resources>

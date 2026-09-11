@@ -9,4 +9,13 @@
     <string name="dig_mode">Digging</string>
     <string name="dig_mode_description">Current mode: digging</string>
     <string name="hidden_cell_description">Row %1$d, column %2$d, hidden</string>
+    <string name="cell_count">%1$d</string>
+    <string name="mine_symbol" translatable="false">✹</string>
+    <string name="mine_cell_description">Row %1$d, column %2$d, mine</string>
+    <string name="detonated_cell_description">Row %1$d, column %2$d, detonated mine</string>
+    <string name="game_lost">You hit a mine. Game over.</string>
+    <plurals name="revealed_cell_description">
+        <item quantity="one">Row %1$d, column %2$d, revealed, %3$d adjacent mine</item>
+        <item quantity="other">Row %1$d, column %2$d, revealed, %3$d adjacent mines</item>
+    </plurals>
 </resources>

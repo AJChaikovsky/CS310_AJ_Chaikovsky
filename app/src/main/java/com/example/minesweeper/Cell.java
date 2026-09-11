@@ -26,6 +26,10 @@ public final class Cell {
         return revealed;
     }
 
+    void reveal() {
+        revealed = true;
+    }
+
     public boolean isFlagged() {
         return flagged;
     }
