@@ -10,3 +10,4 @@ captures/
 *.jks
 *.keystore
 !debug.keystore
+*.md

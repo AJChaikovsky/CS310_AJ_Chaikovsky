@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">Minesweeper</string>
     <string name="course_heading">CS310 · AJ Chaikovsky</string>
-    <string name="initial_mine_count">6</string>
-    <string name="initial_mine_description">6 mines remaining</string>
+    <string name="mine_count_value">%1$d</string>
+    <string name="mines_remaining_description">%1$d mines remaining</string>
     <string name="initial_time">0 s</string>
     <string name="initial_time_description">0 seconds elapsed</string>
     <string name="dig_mode">Digging</string>

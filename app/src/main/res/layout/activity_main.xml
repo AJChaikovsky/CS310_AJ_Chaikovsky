@@ -43,8 +43,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="@string/initial_mine_count"
-                android:contentDescription="@string/initial_mine_description"
                 android:textColor="@color/ink"
                 android:textSize="24sp"
                 android:textStyle="bold" />
@@ -72,8 +70,6 @@
             android:id="@+id/board"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:rowCount="10"
-            android:columnCount="10"
             android:orientation="horizontal"
             android:useDefaultMargins="false" />
         <!-- Milestone 4 will make this digging indicator a mode toggle. -->
