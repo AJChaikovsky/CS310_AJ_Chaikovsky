@@ -1,5 +1,6 @@
 package com.example.minesweeper;
 
+import java.util.ArrayDeque;
 import java.util.Objects;
 import java.util.Random;
 
@@ -11,6 +12,7 @@ public final class GameBoard {
 
     private final Cell[][] cells = new Cell[BOARD_SIZE][BOARD_SIZE];
     private boolean lost;
+    private boolean won;
     private int revealedSafeCount;
     private int detonatedMinePosition = -1;
     private int flagCount;
@@ -74,7 +76,7 @@ public final class GameBoard {
     /** Returns true only when this dig changes the game. */
     public boolean dig(int row, int column) {
         Cell cell = getCell(row, column);
-        if (lost || cell.isRevealed() || cell.isFlagged()) {
+        if (isGameOver() || cell.isRevealed() || cell.isFlagged()) {
             return false;
         }
         if (cell.isMine()) {
@@ -87,8 +89,11 @@ public final class GameBoard {
                 }
             }
         } else {
-            cell.reveal();
-            revealedSafeCount++;
+            revealSafeRegion(row, column);
+            if (revealedSafeCount == CELL_COUNT - MINE_COUNT) {
+                won = true;
+                revealAllCells();
+            }
         }
         return true;
     }
@@ -100,7 +105,7 @@ public final class GameBoard {
 
     public boolean toggleFlag(int row, int column) {
         Cell cell = getCell(row, column);
-        if (lost || cell.isRevealed()) {
+        if (isGameOver() || cell.isRevealed()) {
             return false;
         }
         cell.toggleFlag();
@@ -109,7 +114,7 @@ public final class GameBoard {
     }
 
     public boolean toggleMode() {
-        if (lost) {
+        if (isGameOver()) {
             return false;
         }
         flagMode = !flagMode;
@@ -133,12 +138,56 @@ public final class GameBoard {
         return lost;
     }
 
+    public boolean isWon() {
+        return won;
+    }
+
+    public boolean isGameOver() {
+        return lost || won;
+    }
+
     public int getRevealedSafeCount() {
         return revealedSafeCount;
     }
 
     public int getDetonatedMinePosition() {
         return detonatedMinePosition;
+    }
+
+    private void revealSafeRegion(int startRow, int startColumn) {
+        ArrayDeque<Integer> pending = new ArrayDeque<>();
+        pending.push(startRow * BOARD_SIZE + startColumn);
+        while (!pending.isEmpty()) {
+            int position = pending.pop();
+            int row = position / BOARD_SIZE;
+            int column = position % BOARD_SIZE;
+            Cell cell = cells[row][column];
+            if (cell.isMine() || cell.isRevealed() || cell.isFlagged()) {
+                continue;
+            }
+            cell.reveal();
+            revealedSafeCount++;
+            if (cell.getAdjacentMines() != 0) {
+                continue;
+            }
+            for (int neighborRow = Math.max(0, row - 1);
+                    neighborRow <= Math.min(BOARD_SIZE - 1, row + 1); neighborRow++) {
+                for (int neighborColumn = Math.max(0, column - 1);
+                        neighborColumn <= Math.min(BOARD_SIZE - 1, column + 1); neighborColumn++) {
+                    if (neighborRow != row || neighborColumn != column) {
+                        pending.push(neighborRow * BOARD_SIZE + neighborColumn);
+                    }
+                }
+            }
+        }
+    }
+
+    private void revealAllCells() {
+        for (Cell[] boardRow : cells) {
+            for (Cell boardCell : boardRow) {
+                boardCell.reveal();
+            }
+        }
     }
 
     private static int[] randomMinePositions(Random random) {

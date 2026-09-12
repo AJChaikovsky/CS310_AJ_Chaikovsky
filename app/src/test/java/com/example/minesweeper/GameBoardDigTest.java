@@ -32,11 +32,12 @@ public class GameBoardDigTest {
     }
 
     @Test
-    public void zeroCellRevealsOnlyItselfUntilExpansionMilestone() {
+    public void zeroCellExpandsToConnectedZerosAndNumberedBoundary() {
         GameBoard board = knownBoard();
         assertTrue(board.dig(9, 0));
         assertEquals(0, board.getCell(9, 0).getAdjacentMines());
-        assertEquals(1, countVisibleCells(board));
+        assertTrue(countVisibleCells(board) > 1);
+        assertTrue(board.getCell(9, 1).isRevealed());
         assertFalse(board.isLost());
     }
 

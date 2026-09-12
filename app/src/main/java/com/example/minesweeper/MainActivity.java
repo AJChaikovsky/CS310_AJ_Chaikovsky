@@ -114,7 +114,7 @@ public class MainActivity extends Activity {
                 Cell state = gameBoard.getCell(row, column);
                 TextView view = cellViews[row][column];
                 boolean lightSquare = (row + column) % 2 == 0;
-                view.setEnabled(!gameBoard.isLost() && !state.isRevealed());
+                view.setEnabled(!gameBoard.isGameOver() && !state.isRevealed());
                 if (!state.isRevealed()) {
                     view.setText(state.isFlagged() ? getString(R.string.flag_symbol) : "");
                     view.setTextColor(getColor(state.isFlagged() ? R.color.flag_red : R.color.ink));
@@ -157,9 +157,10 @@ public class MainActivity extends Activity {
                 flagMode ? R.drawable.ic_flag : R.drawable.ic_dig, 0, 0, 0);
         modeButton.setContentDescription(getString(flagMode
                 ? R.string.flag_mode_description : R.string.dig_mode_description));
-        modeButton.setEnabled(!gameBoard.isLost());
+        modeButton.setEnabled(!gameBoard.isGameOver());
         TextView status = findViewById(R.id.game_status);
-        status.setVisibility(gameBoard.isLost() ? View.VISIBLE : View.GONE);
+        status.setVisibility(gameBoard.isGameOver() ? View.VISIBLE : View.GONE);
+        status.setText(gameBoard.isWon() ? R.string.game_won : R.string.game_lost);
     }
 
     @Override
