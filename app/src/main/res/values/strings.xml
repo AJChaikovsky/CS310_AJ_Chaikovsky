@@ -3,11 +3,18 @@
     <string name="app_name">Minesweeper</string>
     <string name="course_heading">CS310 · AJ Chaikovsky</string>
     <string name="mine_count_value">%1$d</string>
-    <string name="mines_remaining_description">%1$d mines remaining</string>
+    <plurals name="mines_remaining_description">
+        <item quantity="one">%1$d mine remaining</item>
+        <item quantity="other">%1$d mines remaining</item>
+    </plurals>
     <string name="initial_time">0 s</string>
     <string name="initial_time_description">0 seconds elapsed</string>
     <string name="dig_mode">Digging</string>
-    <string name="dig_mode_description">Current mode: digging</string>
+    <string name="dig_mode_description">Digging mode. Switch to flagging.</string>
+    <string name="flag_mode">Flagging</string>
+    <string name="flag_mode_description">Flagging mode. Switch to digging.</string>
+    <string name="flag_symbol" translatable="false">⚑</string>
+    <string name="flagged_cell_description">Row %1$d, column %2$d, flagged and hidden</string>
     <string name="hidden_cell_description">Row %1$d, column %2$d, hidden</string>
     <string name="cell_count">%1$d</string>
     <string name="mine_symbol" translatable="false">✹</string>

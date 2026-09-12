@@ -3,7 +3,7 @@ package com.example.minesweeper;
 import java.util.Objects;
 import java.util.Random;
 
-/** Board data and digging rules, independent of Android views. */
+/** Board data, digging, and flagging rules, independent of Android views. */
 public final class GameBoard {
     public static final int BOARD_SIZE = 10;
     public static final int CELL_COUNT = BOARD_SIZE * BOARD_SIZE;
@@ -13,6 +13,8 @@ public final class GameBoard {
     private boolean lost;
     private int revealedSafeCount;
     private int detonatedMinePosition = -1;
+    private int flagCount;
+    private boolean flagMode;
 
     public GameBoard() {
         this(new Random());
@@ -89,6 +91,42 @@ public final class GameBoard {
             revealedSafeCount++;
         }
         return true;
+    }
+
+    /** Apply a cell tap using the currently selected mode. */
+    public boolean tap(int row, int column) {
+        return flagMode ? toggleFlag(row, column) : dig(row, column);
+    }
+
+    public boolean toggleFlag(int row, int column) {
+        Cell cell = getCell(row, column);
+        if (lost || cell.isRevealed()) {
+            return false;
+        }
+        cell.toggleFlag();
+        flagCount += cell.isFlagged() ? 1 : -1;
+        return true;
+    }
+
+    public boolean toggleMode() {
+        if (lost) {
+            return false;
+        }
+        flagMode = !flagMode;
+        return true;
+    }
+
+    public boolean isFlagMode() {
+        return flagMode;
+    }
+
+    public int getFlagCount() {
+        return flagCount;
+    }
+
+    public int getRemainingMines() {
+        // Flags are guesses: count every flag and allow the result to be negative.
+        return MINE_COUNT - flagCount;
     }
 
     public boolean isLost() {

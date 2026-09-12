@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowInsets;
 import android.widget.GridLayout;
+import android.widget.Button;
 import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Random;
@@ -15,9 +16,11 @@ import java.util.Random;
 public class MainActivity extends Activity {
     private static final String BOARD_SEED_KEY = "boardSeed";
     private static final String DUG_CELLS_KEY = "dugCells";
+    private static final String ACTIONS_KEY = "boardActions";
+    private static final int MODE_TOGGLE_ACTION = -1;
     private GameBoard gameBoard;
     private long boardSeed;
-    private ArrayList<Integer> dugCells;
+    private ArrayList<Integer> boardActions;
     private TextView[][] cellViews;
 
     @Override
@@ -27,19 +30,24 @@ public class MainActivity extends Activity {
         boardSeed = savedInstanceState != null && savedInstanceState.containsKey(BOARD_SEED_KEY)
                 ? savedInstanceState.getLong(BOARD_SEED_KEY) : new Random().nextLong();
         gameBoard = new GameBoard(new Random(boardSeed));
-        dugCells = savedInstanceState == null ? null
-                : savedInstanceState.getIntegerArrayList(DUG_CELLS_KEY);
-        if (dugCells == null) {
-            dugCells = new ArrayList<>();
+        boardActions = savedInstanceState == null ? null
+                : savedInstanceState.getIntegerArrayList(ACTIONS_KEY);
+        // A saved Milestone 3 game contains only digs, all in the default dig mode.
+        if (boardActions == null && savedInstanceState != null) {
+            boardActions = savedInstanceState.getIntegerArrayList(DUG_CELLS_KEY);
         }
-        // Replaying accepted digs restores revealed cells and loss after rotation.
-        for (int position : dugCells) {
-            gameBoard.dig(position / gameBoard.getSize(), position % gameBoard.getSize());
+        if (boardActions == null) {
+            boardActions = new ArrayList<>();
         }
-        TextView mineCount = findViewById(R.id.mine_count);
-        mineCount.setText(getString(R.string.mine_count_value, gameBoard.getMineCount()));
-        mineCount.setContentDescription(getString(
-                R.string.mines_remaining_description, gameBoard.getMineCount()));
+        // Replay mode changes and accepted taps in order to restore the whole game.
+        for (int action : boardActions) {
+            if (action == MODE_TOGGLE_ACTION) {
+                gameBoard.toggleMode();
+            } else {
+                gameBoard.tap(action / gameBoard.getSize(), action % gameBoard.getSize());
+            }
+        }
+        findViewById(R.id.mode_indicator).setOnClickListener(view -> switchMode());
         // Keep content clear of system bars and cutouts on edge-to-edge devices.
         View main = findViewById(R.id.main);
         main.setOnApplyWindowInsetsListener((view, windowInsets) -> {
@@ -79,16 +87,23 @@ public class MainActivity extends Activity {
 
                 final int cellRow = row;
                 final int cellColumn = column;
-                cell.setOnClickListener(view -> digCell(cellRow, cellColumn));
+                cell.setOnClickListener(view -> tapCell(cellRow, cellColumn));
                 cellViews[row][column] = cell;
                 board.addView(cell);
             }
         }
     }
 
-    private void digCell(int row, int column) {
-        if (gameBoard.dig(row, column)) {
-            dugCells.add(row * gameBoard.getSize() + column);
+    private void tapCell(int row, int column) {
+        if (gameBoard.tap(row, column)) {
+            boardActions.add(row * gameBoard.getSize() + column);
+            renderBoard();
+        }
+    }
+
+    private void switchMode() {
+        if (gameBoard.toggleMode()) {
+            boardActions.add(MODE_TOGGLE_ACTION);
             renderBoard();
         }
     }
@@ -101,11 +116,13 @@ public class MainActivity extends Activity {
                 boolean lightSquare = (row + column) % 2 == 0;
                 view.setEnabled(!gameBoard.isLost() && !state.isRevealed());
                 if (!state.isRevealed()) {
-                    view.setText("");
+                    view.setText(state.isFlagged() ? getString(R.string.flag_symbol) : "");
+                    view.setTextColor(getColor(state.isFlagged() ? R.color.flag_red : R.color.ink));
                     view.setBackgroundColor(getColor(lightSquare
                             ? R.color.cell_light : R.color.cell_dark));
-                    view.setContentDescription(getString(
-                            R.string.hidden_cell_description, row + 1, column + 1));
+                    view.setContentDescription(getString(state.isFlagged()
+                            ? R.string.flagged_cell_description
+                            : R.string.hidden_cell_description, row + 1, column + 1));
                 } else if (state.isMine()) {
                     view.setText(R.string.mine_symbol);
                     view.setTextColor(getColor(R.color.mine_ink));
@@ -128,6 +145,19 @@ public class MainActivity extends Activity {
                 }
             }
         }
+        int remaining = gameBoard.getRemainingMines();
+        TextView mineCount = findViewById(R.id.mine_count);
+        mineCount.setText(getString(R.string.mine_count_value, remaining));
+        mineCount.setContentDescription(getResources().getQuantityString(
+                R.plurals.mines_remaining_description, remaining, remaining));
+        Button modeButton = findViewById(R.id.mode_indicator);
+        boolean flagMode = gameBoard.isFlagMode();
+        modeButton.setText(flagMode ? R.string.flag_mode : R.string.dig_mode);
+        modeButton.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                flagMode ? R.drawable.ic_flag : R.drawable.ic_dig, 0, 0, 0);
+        modeButton.setContentDescription(getString(flagMode
+                ? R.string.flag_mode_description : R.string.dig_mode_description));
+        modeButton.setEnabled(!gameBoard.isLost());
         TextView status = findViewById(R.id.game_status);
         status.setVisibility(gameBoard.isLost() ? View.VISIBLE : View.GONE);
     }
@@ -137,6 +167,6 @@ public class MainActivity extends Activity {
         super.onSaveInstanceState(outState);
         // Recreate the same mine layout after rotation instead of reshuffling it.
         outState.putLong(BOARD_SEED_KEY, boardSeed);
-        outState.putIntegerArrayList(DUG_CELLS_KEY, new ArrayList<>(dugCells));
+        outState.putIntegerArrayList(ACTIONS_KEY, new ArrayList<>(boardActions));
     }
 }

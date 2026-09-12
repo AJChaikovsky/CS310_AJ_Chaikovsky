@@ -33,4 +33,8 @@ public final class Cell {
     public boolean isFlagged() {
         return flagged;
     }
+
+    void toggleFlag() {
+        flagged = !flagged;
+    }
 }

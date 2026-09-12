@@ -72,36 +72,28 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:useDefaultMargins="false" />
-        <!-- Milestone 4 will make this digging indicator a mode toggle. -->
-        <LinearLayout
+        <Button
             android:id="@+id/mode_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:background="@drawable/mode_background"
-            android:orientation="horizontal"
             android:gravity="center"
+            android:minHeight="48dp"
+            android:drawableStart="@drawable/ic_dig"
+            android:drawablePadding="8dp"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:text="@string/dig_mode"
+            android:textAllCaps="false"
+            android:textColor="@color/ink"
+            android:textSize="16sp"
+            android:textStyle="bold"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
             android:contentDescription="@string/dig_mode_description"
-            android:importantForAccessibility="yes">
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_dig"
-                android:importantForAccessibility="no" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/dig_mode"
-                android:textColor="@color/ink"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:importantForAccessibility="no" />
-        </LinearLayout>
+            android:importantForAccessibility="yes" />
         <TextView
             android:id="@+id/game_status"
             android:layout_width="match_parent"
