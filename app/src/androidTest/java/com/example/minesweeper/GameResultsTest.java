@@ -18,6 +18,68 @@ import static org.junit.Assert.*;
 @RunWith(AndroidJUnit4.class)
 public class GameResultsTest {
     @Test
+    public void negativeFlagCounterAndExpansionProtectionSurviveRecreation() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            AtomicReference<int[]> positions = new AtomicReference<>();
+            scenario.onActivity(activity -> {
+                GameBoard game = board(activity);
+                int zero = -1;
+                for (int p = 0; p < 100; p++) {
+                    Cell state = game.getCell(p / 10, p % 10);
+                    if (!state.isMine() && state.getAdjacentMines() == 0) {
+                        zero = p;
+                        break;
+                    }
+                }
+                assertTrue(zero >= 0);
+                // This neighbor is safe because it touches a zero. Keep it flagged
+                // so expansion cannot finish the game before flag rules are checked.
+                int neighbor = zero % 10 == 9 ? zero - 1 : zero + 1;
+                int[] flags = new int[7];
+                flags[0] = neighbor;
+                int count = 1;
+                for (int p = 0; count < flags.length; p++) {
+                    if (p != zero && p != neighbor) flags[count++] = p;
+                }
+                positions.set(flags);
+                activity.findViewById(R.id.mode_indicator).performClick();
+                for (int p : flags) cell(activity, p).performClick();
+                assertEquals("-1", text(activity, R.id.mine_count));
+                activity.findViewById(R.id.mode_indicator).performClick();
+                cell(activity, neighbor).performClick();
+                assertEquals(0, game.getRevealedSafeCount());
+                cell(activity, zero).performClick();
+                assertTrue(game.getRevealedSafeCount() > 0);
+                assertFalse(game.isGameOver());
+                for (int p : flags) {
+                    assertTrue(game.getCell(p / 10, p % 10).isFlagged());
+                    assertFalse(game.getCell(p / 10, p % 10).isRevealed());
+                }
+                activity.findViewById(R.id.mode_indicator).performClick();
+                cell(activity, zero).performClick();
+                assertEquals("-1", text(activity, R.id.mine_count));
+            });
+            scenario.recreate();
+            scenario.onActivity(activity -> {
+                GameBoard game = board(activity);
+                assertTrue(game.isFlagMode());
+                assertEquals("-1", text(activity, R.id.mine_count));
+                for (int p : positions.get()) {
+                    assertTrue(game.getCell(p / 10, p % 10).isFlagged());
+                    assertFalse(game.getCell(p / 10, p % 10).isRevealed());
+                }
+                int neighbor = positions.get()[0];
+                cell(activity, neighbor).performClick();
+                assertEquals("0", text(activity, R.id.mine_count));
+                activity.findViewById(R.id.mode_indicator).performClick();
+                cell(activity, neighbor).performClick();
+                assertTrue(game.getCell(neighbor / 10, neighbor % 10).isRevealed());
+                assertFalse(game.isLost());
+            });
+        }
+    }
+
+    @Test
     public void nextTouchAnywhereOpensResultsWithoutRestarting() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
             for (int target : new int[]{R.id.timer, R.id.mode_indicator, R.id.main}) {
