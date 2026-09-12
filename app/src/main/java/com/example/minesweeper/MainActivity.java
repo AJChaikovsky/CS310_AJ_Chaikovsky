@@ -48,6 +48,7 @@ public class MainActivity extends Activity {
             }
         }
         findViewById(R.id.mode_indicator).setOnClickListener(view -> switchMode());
+        findViewById(R.id.play_again).setOnClickListener(view -> startNewGame());
         // Keep content clear of system bars and cutouts on edge-to-edge devices.
         View main = findViewById(R.id.main);
         main.setOnApplyWindowInsetsListener((view, windowInsets) -> {
@@ -108,6 +109,14 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void startNewGame() {
+        boardSeed = new Random().nextLong();
+        gameBoard = new GameBoard(new Random(boardSeed));
+        boardActions.clear();
+        renderBoard();
+        findViewById(R.id.main).scrollTo(0, 0);
+    }
+
     private void renderBoard() {
         for (int row = 0; row < gameBoard.getSize(); row++) {
             for (int column = 0; column < gameBoard.getSize(); column++) {
@@ -161,6 +170,8 @@ public class MainActivity extends Activity {
         TextView status = findViewById(R.id.game_status);
         status.setVisibility(gameBoard.isGameOver() ? View.VISIBLE : View.GONE);
         status.setText(gameBoard.isWon() ? R.string.game_won : R.string.game_lost);
+        findViewById(R.id.play_again).setVisibility(
+                gameBoard.isGameOver() ? View.VISIBLE : View.GONE);
     }
 
     @Override

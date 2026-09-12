@@ -106,5 +106,20 @@
             android:textStyle="bold"
             android:accessibilityLiveRegion="polite"
             android:visibility="gone" />
+        <Button
+            android:id="@+id/play_again"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/mode_background"
+            android:minHeight="48dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:text="@string/play_again"
+            android:textAllCaps="false"
+            android:textColor="@color/ink"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
     </LinearLayout>
 </ScrollView>

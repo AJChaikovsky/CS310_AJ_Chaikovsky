@@ -22,6 +22,7 @@
     <string name="detonated_cell_description">Row %1$d, column %2$d, detonated mine</string>
     <string name="game_lost">You hit a mine. Game over.</string>
     <string name="game_won">You cleared the board. You won!</string>
+    <string name="play_again">Play Again</string>
     <plurals name="revealed_cell_description">
         <item quantity="one">Row %1$d, column %2$d, revealed, %3$d adjacent mine</item>
         <item quantity="other">Row %1$d, column %2$d, revealed, %3$d adjacent mines</item>

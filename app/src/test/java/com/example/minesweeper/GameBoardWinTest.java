@@ -13,6 +13,11 @@ public class GameBoardWinTest {
         GameBoard board = knownBoard();
         board.dig(9, 0);
         assertTrue(board.getRevealedSafeCount() > 1);
+        // Expansion reaches the numbered boundary, but not isolated numbered cells.
+        assertEquals(1, board.getCell(9, 8).getAdjacentMines());
+        assertTrue(board.getCell(9, 8).isRevealed());
+        assertFalse(board.getCell(0, 1).isRevealed());
+        assertFalse(board.isWon());
         for (int row = 0; row < 10; row++) {
             for (int column = 0; column < 10; column++) {
                 if (board.getCell(row, column).isRevealed()) {
@@ -61,6 +66,20 @@ public class GameBoardWinTest {
         assertFalse(board.dig(0, 0));
         assertFalse(board.toggleFlag(9, 0));
         assertFalse(board.toggleMode());
+    }
+
+    @Test
+    public void flaggedSafeCellPreventsAnOtherwiseCompleteFirstTapWin() {
+        GameBoard board = GameBoard.fromMinePositions(0, 1, 2, 3, 4, 5);
+        board.toggleFlag(9, 9);
+        board.dig(9, 0);
+        assertEquals(93, board.getRevealedSafeCount());
+        assertFalse(board.isGameOver());
+        assertFalse(board.getCell(9, 9).isRevealed());
+        board.toggleFlag(9, 9);
+        board.dig(9, 9);
+        assertEquals(94, board.getRevealedSafeCount());
+        assertTrue(board.isWon());
     }
 
     @Test
