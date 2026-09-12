@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Minesweeper</string>
-    <string name="course_heading">CS310 · AJ Chaikovsky</string>
+    <string name="course_heading">CS310 AJ Chaikovsky</string>
     <string name="mine_count_value">%1$d</string>
     <plurals name="mines_remaining_description">
         <item quantity="one">%1$d mine remaining</item>
