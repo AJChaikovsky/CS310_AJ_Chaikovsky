@@ -22,12 +22,14 @@ public class MainActivity extends Activity {
     private static final String ACTIONS_KEY = "boardActions";
     private static final String TIMER_START_KEY = "timerStart";
     private static final String TIMER_STOP_KEY = "timerStop";
+    private static final String RESULTS_VISIBLE_KEY = "resultsVisible";
     private static final int MODE_TOGGLE_ACTION = -1;
     private GameBoard gameBoard;
     private long boardSeed;
     private ArrayList<Integer> boardActions;
     private TextView[][] cellViews;
     private GameTimer gameTimer;
+    private boolean resultsVisible;
     private final Handler timerHandler = new Handler(Looper.getMainLooper());
     private final Runnable timerTick = this::updateTimer;
 
@@ -67,6 +69,8 @@ public class MainActivity extends Activity {
         }
         findViewById(R.id.mode_indicator).setOnClickListener(view -> switchMode());
         findViewById(R.id.play_again).setOnClickListener(view -> startNewGame());
+        findViewById(R.id.finished_screen_target).setOnClickListener(
+                view -> setResultsVisible(true));
         // Keep content clear of system bars and cutouts on edge-to-edge devices.
         View main = findViewById(R.id.main);
         main.setOnApplyWindowInsetsListener((view, windowInsets) -> {
@@ -78,6 +82,8 @@ public class MainActivity extends Activity {
         main.requestApplyInsets();
         createBoardViews();
         renderBoard();
+        setResultsVisible(gameBoard.isGameOver() && savedInstanceState != null
+                && savedInstanceState.getBoolean(RESULTS_VISIBLE_KEY));
     }
 
     private void createBoardViews() {
@@ -114,6 +120,11 @@ public class MainActivity extends Activity {
     }
 
     private void tapCell(int row, int column) {
+        // The game-ending tap only reveals the board. A later tap opens results.
+        if (gameBoard.isGameOver()) {
+            setResultsVisible(true);
+            return;
+        }
         if (gameBoard.tap(row, column)) {
             boardActions.add(row * gameBoard.getSize() + column);
             if (gameBoard.isGameOver()) {
@@ -136,9 +147,29 @@ public class MainActivity extends Activity {
         gameBoard = new GameBoard(new Random(boardSeed));
         boardActions.clear();
         gameTimer = new GameTimer(SystemClock::elapsedRealtime);
+        setResultsVisible(false);
         updateTimer();
         renderBoard();
-        findViewById(R.id.main).scrollTo(0, 0);
+        findViewById(R.id.game_page).scrollTo(0, 0);
+    }
+
+    private void setResultsVisible(boolean visible) {
+        resultsVisible = visible;
+        if (visible) {
+            TextView outcome = findViewById(R.id.result_outcome);
+            outcome.setText(gameBoard.isWon() ? R.string.result_won : R.string.result_lost);
+            outcome.setTextColor(getColor(gameBoard.isWon() ? R.color.ink : R.color.flag_red));
+            long seconds = gameTimer.elapsedMillis() / 1000;
+            TextView time = findViewById(R.id.result_time);
+            time.setText(getString(R.string.elapsed_time, seconds));
+            time.setContentDescription(getResources().getQuantityString(
+                    R.plurals.elapsed_time_description,
+                    (int) Math.min(seconds, Integer.MAX_VALUE), seconds));
+        }
+        findViewById(R.id.game_page).setVisibility(visible ? View.GONE : View.VISIBLE);
+        findViewById(R.id.results_page).setVisibility(visible ? View.VISIBLE : View.GONE);
+        findViewById(R.id.finished_screen_target).setVisibility(
+                gameBoard.isGameOver() && !visible ? View.VISIBLE : View.GONE);
     }
 
     private void renderBoard() {
@@ -147,7 +178,7 @@ public class MainActivity extends Activity {
                 Cell state = gameBoard.getCell(row, column);
                 TextView view = cellViews[row][column];
                 boolean lightSquare = (row + column) % 2 == 0;
-                view.setEnabled(!gameBoard.isGameOver() && !state.isRevealed());
+                view.setEnabled(gameBoard.isGameOver() || !state.isRevealed());
                 if (!state.isRevealed()) {
                     view.setText(state.isFlagged() ? getString(R.string.flag_symbol) : "");
                     view.setTextColor(getColor(state.isFlagged() ? R.color.flag_red : R.color.ink));
@@ -176,6 +207,10 @@ public class MainActivity extends Activity {
                             R.plurals.revealed_cell_description, adjacent,
                             row + 1, column + 1, adjacent));
                 }
+                if (gameBoard.isGameOver()) {
+                    view.setContentDescription(getString(R.string.finished_cell_description,
+                            view.getContentDescription()));
+                }
             }
         }
         int remaining = gameBoard.getRemainingMines();
@@ -194,8 +229,12 @@ public class MainActivity extends Activity {
         TextView status = findViewById(R.id.game_status);
         status.setVisibility(gameBoard.isGameOver() ? View.VISIBLE : View.GONE);
         status.setText(gameBoard.isWon() ? R.string.game_won : R.string.game_lost);
-        findViewById(R.id.play_again).setVisibility(
+        findViewById(R.id.results_hint).setVisibility(
                 gameBoard.isGameOver() ? View.VISIBLE : View.GONE);
+        // This target appears after the game-ending click has been delivered.
+        // It catches the next tap anywhere without passing it through to Play Again.
+        findViewById(R.id.finished_screen_target).setVisibility(
+                gameBoard.isGameOver() && !resultsVisible ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -233,5 +272,6 @@ public class MainActivity extends Activity {
         outState.putIntegerArrayList(ACTIONS_KEY, new ArrayList<>(boardActions));
         outState.putLong(TIMER_START_KEY, gameTimer.getStartedAtMillis());
         outState.putLong(TIMER_STOP_KEY, gameTimer.getStoppedElapsedMillis());
+        outState.putBoolean(RESULTS_VISIBLE_KEY, resultsVisible);
     }
 }

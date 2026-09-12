@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<ScrollView
+    android:id="@+id/game_page"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -106,20 +110,25 @@
             android:textStyle="bold"
             android:accessibilityLiveRegion="polite"
             android:visibility="gone" />
-        <Button
-            android:id="@+id/play_again"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/results_hint"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@drawable/mode_background"
-            android:minHeight="48dp"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp"
-            android:text="@string/play_again"
-            android:textAllCaps="false"
-            android:textColor="@color/ink"
+            android:gravity="center"
+            android:text="@string/results_hint"
+            android:textColor="@color/secondary_ink"
             android:textSize="16sp"
-            android:textStyle="bold"
             android:visibility="gone" />
     </LinearLayout>
 </ScrollView>
+<View
+    android:id="@+id/finished_screen_target"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true"
+    android:contentDescription="@string/results_hint"
+    android:visibility="gone" />
+<include layout="@layout/page_results" />
+</FrameLayout>

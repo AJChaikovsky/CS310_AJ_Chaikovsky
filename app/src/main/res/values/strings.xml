@@ -28,6 +28,12 @@
     <string name="game_lost">You hit a mine. Game over.</string>
     <string name="game_won">You cleared the board. You won!</string>
     <string name="play_again">Play Again</string>
+    <string name="results_hint">Tap anywhere on the screen to view results and play again.</string>
+    <string name="results_title">Game results</string>
+    <string name="result_won">You won!</string>
+    <string name="result_lost">You lost</string>
+    <string name="elapsed_time_label">Elapsed time</string>
+    <string name="finished_cell_description">%1$s. Tap to view results.</string>
     <plurals name="revealed_cell_description">
         <item quantity="one">Row %1$d, column %2$d, revealed, %3$d adjacent mine</item>
         <item quantity="other">Row %1$d, column %2$d, revealed, %3$d adjacent mines</item>
