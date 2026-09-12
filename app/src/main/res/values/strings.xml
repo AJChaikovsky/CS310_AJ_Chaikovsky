@@ -9,6 +9,11 @@
     </plurals>
     <string name="initial_time">0 s</string>
     <string name="initial_time_description">0 seconds elapsed</string>
+    <string name="elapsed_time">%1$d s</string>
+    <plurals name="elapsed_time_description">
+        <item quantity="one">%1$d second elapsed</item>
+        <item quantity="other">%1$d seconds elapsed</item>
+    </plurals>
     <string name="dig_mode">Digging</string>
     <string name="dig_mode_description">Digging mode. Switch to flagging.</string>
     <string name="flag_mode">Flagging</string>

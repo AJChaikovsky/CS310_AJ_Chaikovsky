@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.graphics.Insets;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.view.View;
 import android.view.WindowInsets;
 import android.widget.GridLayout;
@@ -17,11 +20,16 @@ public class MainActivity extends Activity {
     private static final String BOARD_SEED_KEY = "boardSeed";
     private static final String DUG_CELLS_KEY = "dugCells";
     private static final String ACTIONS_KEY = "boardActions";
+    private static final String TIMER_START_KEY = "timerStart";
+    private static final String TIMER_STOP_KEY = "timerStop";
     private static final int MODE_TOGGLE_ACTION = -1;
     private GameBoard gameBoard;
     private long boardSeed;
     private ArrayList<Integer> boardActions;
     private TextView[][] cellViews;
+    private GameTimer gameTimer;
+    private final Handler timerHandler = new Handler(Looper.getMainLooper());
+    private final Runnable timerTick = this::updateTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +54,16 @@ public class MainActivity extends Activity {
             } else {
                 gameBoard.tap(action / gameBoard.getSize(), action % gameBoard.getSize());
             }
+        }
+        if (savedInstanceState != null && savedInstanceState.containsKey(TIMER_START_KEY)) {
+            gameTimer = new GameTimer(SystemClock::elapsedRealtime,
+                    savedInstanceState.getLong(TIMER_START_KEY),
+                    savedInstanceState.getLong(TIMER_STOP_KEY, -1));
+        } else {
+            gameTimer = new GameTimer(SystemClock::elapsedRealtime);
+        }
+        if (gameBoard.isGameOver()) {
+            gameTimer.stop();
         }
         findViewById(R.id.mode_indicator).setOnClickListener(view -> switchMode());
         findViewById(R.id.play_again).setOnClickListener(view -> startNewGame());
@@ -98,6 +116,10 @@ public class MainActivity extends Activity {
     private void tapCell(int row, int column) {
         if (gameBoard.tap(row, column)) {
             boardActions.add(row * gameBoard.getSize() + column);
+            if (gameBoard.isGameOver()) {
+                gameTimer.stop();
+                updateTimer();
+            }
             renderBoard();
         }
     }
@@ -113,6 +135,8 @@ public class MainActivity extends Activity {
         boardSeed = new Random().nextLong();
         gameBoard = new GameBoard(new Random(boardSeed));
         boardActions.clear();
+        gameTimer = new GameTimer(SystemClock::elapsedRealtime);
+        updateTimer();
         renderBoard();
         findViewById(R.id.main).scrollTo(0, 0);
     }
@@ -175,10 +199,39 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        updateTimer();
+    }
+
+    @Override
+    protected void onStop() {
+        timerHandler.removeCallbacks(timerTick);
+        super.onStop();
+    }
+
+    private void updateTimer() {
+        // Each activity owns one callback; elapsed time continues while backgrounded.
+        timerHandler.removeCallbacks(timerTick);
+        long elapsedMillis = gameTimer.elapsedMillis();
+        long seconds = elapsedMillis / 1000;
+        TextView timer = findViewById(R.id.timer);
+        timer.setText(getString(R.string.elapsed_time, seconds));
+        timer.setContentDescription(getResources().getQuantityString(
+                R.plurals.elapsed_time_description,
+                (int) Math.min(seconds, Integer.MAX_VALUE), seconds));
+        if (!gameBoard.isGameOver()) {
+            timerHandler.postDelayed(timerTick, 1000 - elapsedMillis % 1000);
+        }
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         // Recreate the same mine layout after rotation instead of reshuffling it.
         outState.putLong(BOARD_SEED_KEY, boardSeed);
         outState.putIntegerArrayList(ACTIONS_KEY, new ArrayList<>(boardActions));
+        outState.putLong(TIMER_START_KEY, gameTimer.getStartedAtMillis());
+        outState.putLong(TIMER_STOP_KEY, gameTimer.getStoppedElapsedMillis());
     }
 }
