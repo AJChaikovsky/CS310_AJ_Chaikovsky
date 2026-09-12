@@ -199,7 +199,7 @@ public class MainActivity extends Activity {
                             : R.string.mine_cell_description, row + 1, column + 1));
                 } else {
                     int adjacent = state.getAdjacentMines();
-                    view.setText(getString(R.string.cell_count, adjacent));
+                    view.setText(adjacent == 0 ? "" : getString(R.string.cell_count, adjacent));
                     view.setTextColor(getColor(R.color.ink));
                     view.setBackgroundColor(getColor(lightSquare
                             ? R.color.revealed_light : R.color.revealed_dark));
